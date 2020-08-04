@@ -80,17 +80,14 @@ def TemporalXception(x):
     x = GlobalAveragePooling1D('channels_last')(x)
     return x
 
-def stnet_keras(input_size, num_classes, layers=[3,4,6,3]):
+def stnet_keras(input_size, num_classes, layers=[3,4,6,3], T=5, N=4):
     inputs = Input(shape=input_size)
     base_ch = 64
-    B,D,H,W,C = inputs._keras_shape
-    T = 5
-    N = 4
-    assert T * N == D
+    assert T * N == input_size[0]
     # reshape
-    x = Lambda(lambda x:tf.reshape(x, [-1, N, H, W, C]))(inputs)
+    x = Lambda(lambda x:tf.reshape(x, [-1, N, *input_size[1:]]))(inputs)
     x = Permute([2,3,4,1])(x)
-    x = Lambda(lambda x:tf.reshape(x, [-1, H, W, C*N]))(x)
+    x = Lambda(lambda x:tf.reshape(x, [-1, input_size[1], input_size[2], input_size[3]*N]))(x)
     # conv1
     x = Conv2D(64, kernel_size=7, strides=2, padding='same', kernel_initializer=initializer, use_bias=False)(x)
     x = BatchNormalization()(x)
