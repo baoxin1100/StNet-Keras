@@ -184,9 +184,9 @@ class TemporalXception(Layer):
         base_cfg = super(TemporalXception, self).get_config()
         return dict(list(config.items())+list(base_cfg.items())) 
     
-class StnetV1(Layer):
+class StNet(Layer):
     def __init__(self, num_classes, base_ch=64, layers=[3,4,6,3], T=5, N=4, return_feature=False, **kwargs):
-        super(StnetV1, self).__init__(**kwargs)
+        super(StNet, self).__init__(**kwargs)
         self.conv1 = Conv2D(base_ch, kernel_size=7, strides=2, padding='same', kernel_initializer=initializer, use_bias=False)
         self.bn1 = BatchNormalization()
         self.relu = Activation('relu')
@@ -250,12 +250,12 @@ class StnetV1(Layer):
         
     def get_config(self):
         config = dict(num_classes=self.num_classes, base_ch=self.base_ch, layers=self.layers, T=self.T, N=self.N, return_feature=self.return_feature)
-        base_cfg = super(StnetV1, self).get_config()
+        base_cfg = super(StNet, self).get_config()
         return dict(list(config.items())+list(base_cfg.items())) 
     
-def stnetv1(input_size, num_classes):
+def stnet(input_size, num_classes):
     inputs = Input(shape=input_size)
-    outputs = StnetV1(num_classes)(inputs)
+    outputs = StNet(num_classes)(inputs)
     model = Model(inputs=inputs, outputs=outputs)
     return model        
     
@@ -263,6 +263,6 @@ if __name__ == "__main__":
 
     with tf.device("/cpu:0"):
         fake = keras.layers.Input(shape=(20, 128, 128, 1))
-        model = stnetv1([20, 128, 128, 1], 5)
+        model = stnet([20, 128, 128, 1], 5)
         outputs = model(fake)
         print(outputs.shape)
